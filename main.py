@@ -82,23 +82,15 @@ def printListOfMainMenuChoices():
     print("2. Actions with teachers.")
     print("3. Actions with students.")
     print("4. Actions with grades.")
-    print("5. Exit")
+    print("5. Actions with export.")
+    print("6. Actions with import.")
+    print("7. Generate statistic for grades")
+    print("8. Exit")
     print("Choose action:", end=" ")
 
 
 def main():
     print("---------------------------")
-    student = school.addStudent("Stu", "Stul", 12, 11, [])
-    student2 = school.addStudent("123", "1234", 12, 10, [])
-    teacher = school.addTeacher("Teal", "tea", 21, 2000)
-    teacher2 = school.addTeacher("Teal", "tea2", 21, 2000)
-    subject = school.addSubject("Math", 1, 12)
-    school.addGrade(student, teacher, subject, 5, updated_at=1748937600)
-    school.addGrade(student, teacher, subject, 4, updated_at=1749024000)
-    school.addGrade(student2, teacher, subject, 3, updated_at=1748851200)
-    school.addGrade(student2, teacher, subject, 2, updated_at=1749024000)
-    school.addGrade(student2, teacher, subject, 2, updated_at=1751529600)
-    school.addGrade(student2, teacher, subject, 2, updated_at=1719993600)
     while True:
         try:
             printListOfMainMenuChoices()
@@ -158,6 +150,7 @@ def main():
                     print("2. Edit student.")
                     print("3. Find student.")
                     print("4. Print all students.")
+                    print("Choose action:", end=" ")
                     secondChoice = input()
                     if secondChoice == "":
                         break
@@ -181,6 +174,7 @@ def main():
                     print("2. Edit grade.")
                     print("3. Print all grades for the subject.")
                     print("4. Print all grades for the student.")
+                    print("Choose action:", end=" ")
                     secondChoice = int(input())
                     if secondChoice == "":
                         break
@@ -199,12 +193,81 @@ def main():
                     else:
                         print("Wrong argument, try again!")
             elif int(choice) == 5:
+                while True:
+                    print("1. Export subjects.")
+                    print("2. Export students.")
+                    print("3. Export teachers.")
+                    print("4. Export grades.")
+                    print("5. Export all.")
+                    print("Choose action:", end=" ")
+                    secondChoice = int(input())
+                    if secondChoice == "":
+                        break
+                    elif int(secondChoice) == 1:
+                        school.exportSubjectsToCSV()
+                        break
+                    elif int(secondChoice) == 2:
+                        school.exportStudentsToCSV()
+                        break
+                    elif int(secondChoice) == 3:
+                        school.exportTeachersToCSV()
+                        break
+                    elif int(secondChoice) == 4:
+                        school.exportGradesToCSV()
+                        break
+                    elif int(secondChoice) == 5:
+                        school.exportSubjectsToCSV()
+                        school.exportStudentsToCSV()
+                        school.exportTeachersToCSV()
+                        school.exportGradesToCSV()
+                        break
+                    else:
+                        print("Wrong argument, try again!")
+            elif int(choice) == 6:
+                while True:
+                    print("1. Import subjects.")
+                    print("2. Import students.")
+                    print("3. Import teachers.")
+                    print("4. Import grades.")
+                    print("5. Import all.")
+                    print("Choose action:", end=" ")
+                    secondChoice = int(input())
+                    if secondChoice == "":
+                        break
+                    elif int(secondChoice) == 1:
+                        school.importSubjectsFromCSV()
+                        break
+                    elif int(secondChoice) == 2:
+                        school.importStudentsFromCSV()
+                        break
+                    elif int(secondChoice) == 3:
+                        school.importTeachersFromCSV()
+                        break
+                    elif int(secondChoice) == 4:
+                        school.importGradesFromCSV()
+                        break
+                    elif int(secondChoice) == 5:
+                        school.importSubjectsFromCSV()
+                        school.importStudentsFromCSV()
+                        school.importTeachersFromCSV()
+                        school.importGradesFromCSV()
+                        break
+                    else:
+                        print("Wrong argument, try again!")
+            elif int(choice) == 7:
+                school.plot_grades_per_subject()
+                break
+            elif int(choice) == 8:
                 print("Bye!")
                 break
             else:
                 print("Wrong argument, try again!")
 
         except ValidationException as e:
+            print("---------------------------")
+            print(e)
+            print("---------------------------")
+        except ValueError as e:
             print("---------------------------")
             print(e)
             print("---------------------------")

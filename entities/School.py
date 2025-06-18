@@ -1,5 +1,11 @@
-from functools import wraps
+import csv
+from collections import defaultdict
+from functools import wraps, reduce
 
+from matplotlib import pyplot as plt
+import matplotlib.dates as mdates
+
+from entities.Grade import Grade
 from entities.Subject import Subject
 from exceptions.ValidationException import ValidationException
 from entities.people.Student import Student
@@ -108,15 +114,11 @@ class School:
 
     def getAllGradesBySubjects(self):
         grades = self.getAllGrades()
-        dictGrades = {}
-        usedSubjects = []
-        for i in range(len(grades)):
-            if grades[i].subject.name not in usedSubjects:
-                usedSubjects.append(grades[i].subject.name)
-                for j in range(len(grades)):
-                    if grades[i].subject.name == grades[j].subject.name:
-                        dictGrades[grades[i].subject] = grades[j].grade
-
+        dictGrades = reduce(
+            lambda acc, grade: acc | {grade.subject: grade.grade} if grade.subject not in acc else acc,
+            grades,
+            {}
+        )
         return dictGrades
 
     def addStudent(self, name, lastname, age, yearOfStudy, grades):
@@ -248,21 +250,40 @@ class School:
         return False
 
     def printAllSubjects(self):
-        for subject in self.subjects:
-            print(f"{subject.name}: {subject.startGrade}-{subject.endGrade}")
-        print("---------------------------")
+        if len(self.subjects) == 0:
+            print("---------------------------")
+            print("There are no subjects")
+            print("---------------------------")
+        else:
+            print("---------------------------")
+            for subject in self.subjects:
+                print(f"{subject.name}: {subject.startGrade}-{subject.endGrade}")
+            print("---------------------------")
 
     def printAllTeachers(self):
-        for teacher in self.getAllTeachers():
-            print(f"{teacher.lastname} {teacher.name}, {teacher.age}, {teacher.salary}$")
+        if len(self.subjects) == 0:
+            print("---------------------------")
+            print("There are no subjects")
+            print("---------------------------")
+        else:
+            print("---------------------------")
+            teachers_strings = list(
+                map(lambda t: f"{t.lastname} {t.name}, {t.age}, {t.salary}$", self.getAllTeachers()))
+            for line in teachers_strings:
+                print(line)
 
-        print("---------------------------")
+            print("---------------------------")
 
     def printAllStudentsWithoutGrades(self):
-        for student in self.getAllStudents():
-            print(f"{student.lastname} {student.name}, {student.age} y.o, {student.yearOfStudy}-th grade")
-
-        print("---------------------------")
+        if len(self.subjects) == 0:
+            print("---------------------------")
+            print("There are no subjects")
+            print("---------------------------")
+        else:
+            print("---------------------------")
+            for student in self.getAllStudents():
+                print(f"{student.lastname} {student.name}, {student.age} y.o, {student.yearOfStudy}-th grade")
+            print("---------------------------")
 
     def printAllGradesForSubject(self, subjectName, start_month, end_month):
         dates = set()
@@ -393,7 +414,7 @@ class School:
         return None
 
     def findSubject(self, string):
-        found_subjects = [subject for subject in self.subjects if string.lower() in subject.name.lower()]
+        found_subjects = list(filter(lambda subject: string.lower() in subject.name.lower(), self.subjects))
 
         if not found_subjects:
             print("---------------------------")
@@ -448,3 +469,135 @@ class School:
             for idx, student in enumerate(found_students, start=1):
                 print(f"{idx}. {student.lastname} {student.name} {student.age} y.o. {student.yearOfStudy}th")
             print("---------------------------")
+
+    def exportStudentsToCSV(self, filename="students.csv"):
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(("Lastname", "Name", "Age", "YearOfStudy"))
+            for student in self.getAllStudents():
+                writer.writerow([student.lastname, student.name, student.age, student.yearOfStudy])
+
+    def exportTeachersToCSV(self, filename="teachers.csv"):
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(("Lastname", "Name", "Age", "Salary"))
+            for teacher in self.getAllTeachers():
+                writer.writerow([teacher.lastname, teacher.name, teacher.age, teacher.salary])
+
+    def exportSubjectsToCSV(self, filename="subjects.csv"):
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(("Name", "StartGrade", "EndGrade"))
+            for subject in self.subjects:
+                writer.writerow([subject.name, subject.startGrade, subject.endGrade])
+
+    def exportGradesToCSV(self, filename="grades.csv"):
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(
+                ("Student Lastname", "Student Name", "Subject", "Teacher Lastname", "Teacher Name", "Grade", "Date"))
+            for grade in self.getAllGrades():
+                student = grade.student
+                writer.writerow([
+                    student.lastname,
+                    student.name,
+                    grade.subject.name,
+                    grade.teacher.lastname,
+                    grade.teacher.name,
+                    grade.grade,
+                    datetime.utcfromtimestamp(grade.updated_at).strftime('%d.%m.%Y %H:%M:%S')
+                ])
+
+    def importStudentsFromCSV(self, filename="students.csv"):
+        try:
+            with open(filename, mode='r', newline='') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    student = Student(
+                        row["Name"],
+                        row["Lastname"],
+                        int(row["Age"]),
+                        int(row["YearOfStudy"]),
+                        []
+                    )
+                    self.people.append(student)
+        except FileNotFoundError:
+            raise ValidationException(f"File {filename} does not exits")
+
+    def importTeachersFromCSV(self, filename="teachers.csv"):
+        try:
+            with open(filename, mode='r', newline='') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    teacher = Teacher(
+                        row["Name"],
+                        row["Lastname"],
+                        int(row["Age"]),
+                        int(row["Salary"])
+                    )
+                    self.people.append(teacher)
+        except FileNotFoundError:
+            raise ValidationException(f"File {filename} does not exits")
+
+    def importSubjectsFromCSV(self, filename="subjects.csv"):
+        try:
+            with open(filename, mode='r', newline='') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    subject = Subject(
+                        row["Name"],
+                        int(row["StartGrade"]),
+                        int(row["EndGrade"])
+                    )
+                    self.subjects.append(subject)
+        except FileNotFoundError:
+            raise ValidationException(f"File {filename} does not exits")
+
+    def importGradesFromCSV(self, filename="grades.csv"):
+        try:
+            with open(filename, mode='r', newline='') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    student = self.getStudentByLastnameName(row["Student Lastname"], row["Student Name"])
+                    teacher = self.getTeacherByLastnameName(row["Teacher Lastname"], row["Teacher Name"])
+                    subject = self.getSubjectByName(row["Subject"])
+                    if student and teacher and subject:
+                        mark = int(row["Grade"])
+                        date_obj = datetime.strptime(row["Date"], '%d.%m.%Y %H:%M:%S')
+                        student.addGrade(subject, teacher, mark, date_obj.timestamp())
+        except FileNotFoundError:
+            raise ValidationException(f"File {filename} does not exits")
+
+    def plot_grades_per_subject(self):
+        grades = self.getAllGrades()
+        if not grades:
+            print("No grades to plot.")
+            return
+
+        subject_grades = defaultdict(list)
+
+        for grade in grades:
+            date = datetime.utcfromtimestamp(grade.updated_at)
+            subject_grades[grade.subject.name].append((date, grade.grade))
+
+        plt.figure(figsize=(12, 6))
+
+        for subject, data in subject_grades.items():
+            data.sort(key=lambda x: x[0])
+            dates, marks = zip(*data)
+            plt.plot(dates, marks, marker='o', label=subject)
+
+        plt.xlabel("Date")
+        plt.ylabel("Grade")
+        plt.title("Grades")
+        plt.legend()
+        plt.grid(True)
+
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d.%m.%Y'))
+        plt.gcf().autofmt_xdate()
+
+        plt.ylim(0.5, 5.5)
+        plt.yticks([1, 2, 3, 4, 5])
+
+        plt.savefig('grades.png')
+        plt.show()
