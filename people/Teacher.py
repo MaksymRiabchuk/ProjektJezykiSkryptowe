@@ -13,5 +13,5 @@ class Teacher(Person):
         print("Age: ", self.age)
         print("Salary: ", self.salary)
 
-    def addGrade(self, subject, student, grade):
-        student.addGrade(subject, self, grade)
+    def addGrade(self, subject, student, grade, updated_at=None):
+        student.addGrade(subject, self, grade, updated_at)

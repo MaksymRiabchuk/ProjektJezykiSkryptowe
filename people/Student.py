@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 from Grade import Grade
 from people.Person import Person
@@ -17,7 +18,33 @@ class Student(Person):
         print("Age: ", self.age)
         print("Year of study: ", self.yearOfStudy)
 
-    def addGrade(self, subject, teacher, grade):
-        current_unix_time_int = int(time.time())
-        grade = Grade(subject, self, grade, teacher, current_unix_time_int, current_unix_time_int)
+    def addGrade(self, subject, teacher, mark, updated_at=None):
+        if updated_at:
+            current_unix_time_int = updated_at
+        else:
+            current_unix_time_int = int(time.time())
+        grade = Grade(subject, self, mark, teacher, current_unix_time_int, current_unix_time_int)
         self.grades.append(grade)
+        return grade
+
+    def getGradeForToday(self, subject, teacher):
+        for grade in self.grades:
+            grade_date = datetime.utcfromtimestamp(grade.updated_at)
+            now = datetime.utcnow()
+            if (grade_date.date() == now.date() and
+                    grade.subject == subject and
+                    grade.teacher == teacher):
+                return grade
+        return None
+
+    def updateGrade(self, subject, teacher, mark):
+        for grade in self.grades:
+            grade_date = datetime.utcfromtimestamp(grade.updated_at)
+            now = datetime.utcnow()
+            if (grade_date.date() == now.date() and
+                    grade.subject == subject and
+                    grade.teacher == teacher):
+                grade.grade = mark
+                grade.updated_at = datetime.utcnow().timestamp()
+                return True
+        return False
