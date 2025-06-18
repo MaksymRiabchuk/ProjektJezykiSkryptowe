@@ -1,8 +1,8 @@
 import time
 from datetime import datetime
 
-from Grade import Grade
-from people.Person import Person
+from entities.Grade import Grade
+from entities.people.Person import Person
 
 
 class Student(Person):
@@ -37,7 +37,7 @@ class Student(Person):
                 return grade
         return None
 
-    def updateGrade(self, subject, teacher, mark):
+    def updateGradeWithTheSameDate(self, subject, teacher, mark):
         for grade in self.grades:
             grade_date = datetime.utcfromtimestamp(grade.updated_at)
             now = datetime.utcnow()
@@ -45,6 +45,16 @@ class Student(Person):
                     grade.subject == subject and
                     grade.teacher == teacher):
                 grade.grade = mark
-                grade.updated_at = datetime.utcnow().timestamp()
+                return True
+        return False
+
+    def updateGrade(self, subject, teacher, mark, date):
+        for grade in self.grades:
+            grade_date = datetime.utcfromtimestamp(grade.updated_at)
+            if (grade_date.date().day == date.day and grade_date.date().year == date.year and
+                    grade_date.date().month == date.month and
+                    grade.subject == subject and
+                    grade.teacher == teacher):
+                grade.grade = mark
                 return True
         return False

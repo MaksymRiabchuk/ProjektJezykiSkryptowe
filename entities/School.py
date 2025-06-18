@@ -1,7 +1,9 @@
-from Subject import Subject
+from functools import wraps
+
+from entities.Subject import Subject
 from exceptions.ValidationException import ValidationException
-from people.Student import Student
-from people.Teacher import Teacher
+from entities.people.Student import Student
+from entities.people.Teacher import Teacher
 from datetime import datetime
 
 
@@ -15,6 +17,63 @@ def isIntInRange(intVal, maxVal, minVal=1):
             return False
         else:
             return True
+
+
+def validate_teacher_uniqueness(method):
+    @wraps(method)
+    def wrapper(self, lastname, name, age, salary, newLastname, newName, *args, **kwargs):
+        if not isIntInRange(age, 60, 20):
+            raise ValidationException("Age of new teacher must be a number in range 20-60")
+        elif not isIntInRange(salary, 8000, 2000):
+            raise ValidationException("Salary of new teacher must be a number in range 2000-8000")
+
+        if name is not None:
+            if self.checkTeacher(newLastname, newName):
+                raise ValidationException("Teacher with this lastname and name already exists!")
+        else:
+            if self.checkTeacherOnlyByLastname(newLastname):
+                raise ValidationException("Teacher with this lastname already exists!")
+
+        return method(self, lastname, name, age, salary, newLastname, newName, *args, **kwargs)
+
+    return wrapper
+
+
+def validate_student_uniqueness(method):
+    @wraps(method)
+    def wrapper(self, lastname, name, age, yearOfStudy, newLastname, newName, *args, **kwargs):
+        if not isIntInRange(age, 18, 6):
+            raise ValidationException("Age of new student must be a number in range 6-18")
+        elif not isIntInRange(yearOfStudy, 12, 1):
+            raise ValidationException("Year of study of new student must be a number in range 1-12")
+
+        if name is not None:
+            if self.checkStudent(newLastname, newName):
+                raise ValidationException("Student with this lastname and name already exists!")
+        else:
+            if self.cehcStudentOnlyByLastname(newLastname):
+                raise ValidationException("Student with this lastname already exists!")
+
+        return method(self, lastname, name, age, yearOfStudy, newLastname, newName, *args, **kwargs)
+
+    return wrapper
+
+
+def validate_subject_uniqueness(method):
+    @wraps(method)
+    def wrapper(self, name, startGrade, endGrade, newName, newStartGrade, newEndGrade, *args, **kwargs):
+        if not isIntInRange(startGrade, 12, 1):
+            raise ValidationException("Start grade of new subject must be a number in range 6-18")
+        elif not isIntInRange(endGrade, 12, 1):
+            raise ValidationException("End grade of new subject must be a number in range 1-12")
+
+        if name is not None:
+            if self.checkSubject(name):
+                raise ValidationException("Subject with this name already exists!")
+
+        return method(self, name, newName, newStartGrade, newEndGrade, *args, **kwargs)
+
+    return wrapper
 
 
 class School:
@@ -71,6 +130,24 @@ class School:
         self.people.append(newStudent)
         return newStudent
 
+    @validate_student_uniqueness
+    def updateStudent(self, lastname, name, age, yearOfStudy, newLastname, newName):
+        student = None
+        if name is not None:
+            student = self.getStudentByLastnameName(lastname, name)
+        else:
+            student = self.getStudentByLastname(lastname)
+
+        if student is None:
+            raise ValidationException("Student not found!")
+        student.lastname = newLastname
+        student.name = newName
+        student.age = age
+        student.yearOfStudy = yearOfStudy
+
+        print(f"Student {student.lastname} {student.name} updated successfully!")
+        return student
+
     def addGrade(self, student, teacher, subject, mark, updated_at=None):
         if not isIntInRange(mark, 5, 1):
             raise ValidationException("Mark must be a valid integer between 1 and 5")
@@ -96,17 +173,18 @@ class School:
         self.subjects.append(newSubject)
         return newSubject
 
-    def updateSubject(self, name, startGrade, endGrade):
-        if not isIntInRange(startGrade, 12):
-            raise ValidationException("Start grade of subject must be a number in range 1-12")
-        elif not isIntInRange(endGrade, 12):
-            raise ValidationException("End grade of subject must be a number in range 1-12")
-        elif self.checkSubject(name):
-            raise ValidationException("Subject with this name already exists!")
+    @validate_subject_uniqueness
+    def updateSubject(self, name, newName, newStartGrade, newEndGrade):
+        subject = self.getSubjectByName(name)
 
-        newSubject = Subject(name, startGrade, endGrade)
-        self.subjects.append(newSubject)
-        return newSubject
+        if subject is None:
+            raise ValidationException("Subject not found!")
+        subject.lastname = newName
+        subject.startGrade = newStartGrade
+        subject.endGrade = newEndGrade
+
+        print(f"Subject {subject.name} updated successfully!")
+        return subject
 
     def addTeacher(self, lastname, name, age, salary):
         if not isIntInRange(age, 60, 20):
@@ -118,6 +196,24 @@ class School:
         newTeacher = Teacher(name, lastname, age, salary)
         self.people.append(newTeacher)
         return newTeacher
+
+    @validate_teacher_uniqueness
+    def updateTeacher(self, lastname, name, age, salary, newLastname, newName):
+        teacher = None
+        if name is not None:
+            teacher = self.getTeacherByLastnameName(lastname, name)
+        else:
+            teacher = self.getTeacherByLastname(lastname)
+
+        if teacher is None:
+            raise ValidationException("Teacher not found!")
+        teacher.lastname = newLastname
+        teacher.name = newName
+        teacher.age = age
+        teacher.salary = salary
+
+        print(f"Teacher {teacher.lastname} {teacher.name} updated successfully!")
+        return teacher
 
     def checkSubject(self, nameOfSubject):
         for subject in self.subjects:
@@ -295,3 +391,60 @@ class School:
                 if subject.name.lower() == subjectName.lower():
                     return subject
         return None
+
+    def findSubject(self, string):
+        found_subjects = [subject for subject in self.subjects if string.lower() in subject.name.lower()]
+
+        if not found_subjects:
+            print("---------------------------")
+            print("No matching subjects found.")
+            print("---------------------------")
+        elif len(found_subjects) == 1:
+            print("---------------------------")
+            print(
+                f"Found subject: {found_subjects[0].name} (from grade {found_subjects[0].startGrade} to {found_subjects[0].endGrade})")
+            print("---------------------------")
+        else:
+            print("---------------------------")
+            print("Found multiple subjects:")
+            for idx, subject in enumerate(found_subjects, start=1):
+                print(f"{idx}. {subject.name} (from grade {subject.startGrade} to {subject.endGrade})")
+            print("---------------------------")
+
+    def findTeacher(self, string):
+        found_teachers = [teacher for teacher in self.getAllTeachers() if string.lower() in teacher.name.lower()]
+
+        if not found_teachers:
+            print("---------------------------")
+            print("No matching teachers found.")
+            print("---------------------------")
+        elif len(found_teachers) == 1:
+            print("---------------------------")
+            print(
+                f"Found teacher: {found_teachers[0].lastname} {found_teachers[0].name} {found_teachers[0].age} y.o. {found_teachers[0].salary}$")
+            print("---------------------------")
+        else:
+            print("---------------------------")
+            print("Found multiple teachers:")
+            for idx, teacher in enumerate(found_teachers, start=1):
+                print(f"{idx}. {teacher.lastname} {teacher.name} {teacher.age} y.o. {teacher.salary}$")
+            print("---------------------------")
+
+    def findStudent(self, string):
+        found_students = [teacher for teacher in self.getAllStudents() if string.lower() in teacher.name.lower()]
+
+        if not found_students:
+            print("---------------------------")
+            print("No matching teachers found.")
+            print("---------------------------")
+        elif len(found_students) == 1:
+            print("---------------------------")
+            print(
+                f"Found teacher: {found_students[0].lastname} {found_students[0].name} {found_students[0].age} y.o. {found_students[0].yearOfStudy}th")
+            print("---------------------------")
+        else:
+            print("---------------------------")
+            print("Found multiple teachers:")
+            for idx, student in enumerate(found_students, start=1):
+                print(f"{idx}. {student.lastname} {student.name} {student.age} y.o. {student.yearOfStudy}th")
+            print("---------------------------")
