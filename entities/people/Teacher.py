@@ -1,4 +1,4 @@
-from people.Person import Person
+from entities.people.Person import Person
 
 
 class Teacher(Person):
