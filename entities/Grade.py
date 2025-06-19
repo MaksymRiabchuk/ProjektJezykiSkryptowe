@@ -1,5 +1,10 @@
+from memory_profiler import profile
+
+
 class Grade:
-    def __init__(self, subject, student, grade, teacher, created_at, updated_at):
+    # @profile
+    def __init__(self, subject, student, grade, teacher,
+                 created_at, updated_at):
         self.subject = subject
         self.student = student
         self.grade = grade

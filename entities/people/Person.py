@@ -1,3 +1,7 @@
+from memory_profiler import profile
+
+
+# @profile
 def id_generator_func():
     current_id = 0
     while True:
@@ -6,6 +10,7 @@ def id_generator_func():
 
 
 class Person:
+    # @profile
     def __init__(self, name, lastname, age):
         self.generateId = id_generator_func()
         self.id = next(self.generateId)
@@ -13,6 +18,7 @@ class Person:
         self.name = name
         self.lastname = lastname
 
+    # @profile
     def printPersonInfo(self):
         print("Name: ", self.name)
         print("Lastname: ", self.lastname)
