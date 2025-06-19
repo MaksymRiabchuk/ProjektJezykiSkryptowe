@@ -1,3 +1,32 @@
+__Structure of modules and packages:__
+project/
+├── main.py
+├── entities/
+|   ├── __init__.py
+|   ├── Grade.py
+|   ├── School.py
+|   ├── Subject.py
+|   ├── people/
+|       ├── __init.py
+|       ├── Person.py
+|       ├── Student.py
+|       ├── Teacher.py
+├── exceptions/
+|   ├── __init__.py
+|   ├──     ValidationException.py
+├── inputFuncs/
+|   ├── __init__.py
+|   ├── functions.py
+├── tests/
+|   ├── __init__.py
+|   ├── BoundaryTests.py
+|   ├── FunctionalTests.py
+|   ├── IntegrationTests.py
+|   ├── TimeExecutionTests.py
+|   ├── UnitTests.py
+├── README.md
+
+
 Example execution:
 ---------------------------
 1. Actions with subjects.
