@@ -1,13 +1,30 @@
-from entities.School import School
-from inputFuncs.functions import *
+import datetime
+
+from memory_profiler import profile
+
+from entities.School import School, isIntInRange
+from exceptions.ValidationException import ValidationException
+from inputFuncs.functions import (getInputDataForAddSubject,
+                                  getInputDataForFindSubject,
+                                  getInputDataForUpdateSubject,
+                                  getInputDataForAddTeacher,
+                                  getInputDataForUpdateTeacher,
+                                  getInputDataForFindTeacher,
+                                  getInputDataForAddStudent,
+                                  getInputDataForUpdateStudent,
+                                  getInputDataForFindStudent,
+                                  getInputDataForAddGrade,
+                                  getInputDataForUpdateGrade)
 
 global school
 school = School("School", "address")
 
 
+# @profile
 def printAllGradesForSubject():
     while True:
-        subjectName = input("Name of the subject (show - to print available subjects): ")
+        subjectName = input("Name of the subject "
+                            "(show - to print available subjects): ")
         if subjectName == "show":
             school.printAllSubjects()
         elif not school.checkSubject(subjectName):
@@ -17,7 +34,8 @@ def printAllGradesForSubject():
     start_month = input("Provide starting month: ")
     if start_month == "":
         start_month = datetime.datetime.today().month
-        school.printAllGradesForSubject(subjectName, int(start_month), int(start_month))
+        school.printAllGradesForSubject(subjectName,
+                                        int(start_month), int(start_month))
     elif not isIntInRange(start_month, 12, 1):
         raise ValidationException("Wrong month was provided!")
     else:
@@ -25,20 +43,27 @@ def printAllGradesForSubject():
         if end_month == "":
             end_month = datetime.datetime.today().month
             if end_month > int(start_month):
-                school.printAllGradesForSubject(subjectName, int(start_month), int(end_month))
+                school.printAllGradesForSubject(subjectName,
+                                                int(start_month),
+                                                int(end_month))
             else:
-                raise ValidationException("Last month must be after the starting month!")
+                raise ValidationException("Last month must be"
+                                          " after the starting month!")
         elif not isIntInRange(end_month, 12, 1):
             raise ValidationException("Wrong month was provided!")
         elif not isIntInRange(end_month, 12, int(start_month)):
-            raise ValidationException("Last month must be after the starting month!")
+            raise ValidationException("Last month must be"
+                                      " after the starting month!")
         else:
-            school.printAllGradesForSubject(subjectName, int(start_month), int(end_month))
+            school.printAllGradesForSubject(subjectName,
+                                            int(start_month), int(end_month))
 
 
+# @profile
 def printAllGradesForStudent():
     while True:
-        studentLastname = input("Lastname of the student (show - to print list of all students): ")
+        studentLastname = input("Lastname of the student (show -"
+                                " to print list of all students): ")
         if studentLastname == "show":
             school.printAllStudentsWithoutGrades()
         elif school.checkStudentOnlyByLastname(studentLastname) == 1:
@@ -46,19 +71,24 @@ def printAllGradesForStudent():
             break
         else:
             while True:
-                studentName = input("Name of the student (show - to print list of all students): ")
+                studentName = input("Name of the student (show -"
+                                    " to print list of all students): ")
                 if studentName == "show":
                     school.printAllStudentsWithoutGrades()
                 elif not school.checkStudent(studentLastname, studentName):
-                    raise ValidationException("There is no student with this name and lastname!")
+                    raise ValidationException("There is no student"
+                                              " with this name and lastname!")
                 else:
-                    student = school.getStudentByLastnameName(studentLastname, studentName)
+                    student = school.getStudentByLastnameName(studentLastname,
+                                                              studentName)
                     break
             break
     start_month = input("Provide starting month: ")
     if start_month == "":
         start_month = datetime.datetime.today().month
-        school.printAllGradesForStudent(student.lastname, student.name, int(start_month), int(start_month))
+        school.printAllGradesForStudent(student.lastname,
+                                        student.name, int(start_month),
+                                        int(start_month))
     elif not isIntInRange(start_month, 12, 1):
         raise ValidationException("Wrong month was provided!")
     else:
@@ -66,17 +96,25 @@ def printAllGradesForStudent():
         if end_month == "":
             end_month = datetime.datetime.today().month
             if end_month > int(start_month):
-                school.printAllGradesForStudent(student.lastname, student.name, int(start_month), int(end_month))
+                school.printAllGradesForStudent(student.lastname,
+                                                student.name, int(start_month),
+                                                int(end_month))
             else:
-                raise ValidationException("Last month must be after the starting month!")
+                raise ValidationException("Last month must be"
+                                          " after the starting month!")
         elif not isIntInRange(end_month, 12, 1):
             raise ValidationException("Wrong month was provided!")
         elif not isIntInRange(end_month, 12, int(start_month)):
-            raise ValidationException("Last month must be after the starting month!")
+            raise ValidationException("Last month must be"
+                                      " after the starting month!")
         else:
-            school.printAllGradesForStudent(student.lastname, student.name, int(start_month), int(end_month))
+            school.printAllGradesForStudent(student.lastname,
+                                            student.name,
+                                            int(start_month),
+                                            int(end_month))
 
 
+# @profile
 def printListOfMainMenuChoices():
     print("1. Actions with subjects.")
     print("2. Actions with teachers.")
@@ -89,6 +127,7 @@ def printListOfMainMenuChoices():
     print("Choose action:", end=" ")
 
 
+# @profile
 def main():
     print("---------------------------")
     while True:
@@ -256,7 +295,6 @@ def main():
                         print("Wrong argument, try again!")
             elif int(choice) == 7:
                 school.plot_grades_per_subject()
-                break
             elif int(choice) == 8:
                 print("Bye!")
                 break
