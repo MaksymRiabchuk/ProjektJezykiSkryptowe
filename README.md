@@ -1,4 +1,13 @@
-__Structure of modules and packages:__
+___Autorzy projektu:___
+
+__Maksym Riabchuk (096832)__<br>
+__Andrii Diachuk (096828)__
+
+___Cel projektu:___
+
+Celem projektu jest stworzenie zaawansowanego programu dla obsługi systemu ocen i statystyk w szkole. Projekt ten miał zawierać wszystkie rzeczy których nauczyliśmy się podczas laboratorium Języków Skryptowych, takich jak: wykorzystywanie wszystkich domyślnych typów danych, podział na module i pakiety, mieć obsługę wyjątków i kontrola dla niewłaściwych typów danych (złaszcza dla funkcji input()), innymi słowami walidacja danych, a także zawierać rożne rodzaje testów i wiele innych rzeczy. Program miał też zawierać główne rzeczy związane w OOP (Object Orientet Programing), takich jak dziedziczenie, podział na klasy i t.p. Głownymi klasami w naszym projekcie są Student, Grade, Subject, School, Person oraz Teacher. Też należało nam dodać obsługę plików CSV oraz generowanie wykresów.
+
+___Structure of modules and packages:___
 
 project/<br>
 ├── main.py<br>
@@ -28,7 +37,8 @@ $~$|  ├── UnitTests.py<br>
 ├── README.md<br>
 
 
-Example execution:
+___Example execution:___
+
 ---------------------------
 1. Actions with subjects.
 2. Actions with teachers.
