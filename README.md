@@ -1,30 +1,31 @@
 __Structure of modules and packages:__
-project/
-├── main.py
-├── entities/
-|   ├── __init__.py
-|   ├── Grade.py
-|   ├── School.py
-|   ├── Subject.py
-|   ├── people/
-|       ├── __init.py
-|       ├── Person.py
-|       ├── Student.py
-|       ├── Teacher.py
-├── exceptions/
-|   ├── __init__.py
-|   ├──     ValidationException.py
-├── inputFuncs/
-|   ├── __init__.py
-|   ├── functions.py
-├── tests/
-|   ├── __init__.py
-|   ├── BoundaryTests.py
-|   ├── FunctionalTests.py
-|   ├── IntegrationTests.py
-|   ├── TimeExecutionTests.py
-|   ├── UnitTests.py
-├── README.md
+
+project/<br>
+├── main.py<br>
+├── entities/<br>
+$~$|  ├── __init__.py<br>
+$~$|  ├── Grade.py<br>
+$~$|  ├── School.py<br>
+$~$|  ├── Subject.py<br>
+$~$|  ├── people/<br>
+$~$|    ├── __init.py<br>
+$~$|    ├── Person.py<br>
+$~$|    ├── Student.py<br>
+$~$|    ├── Teacher.py<br>
+├── exceptions/<br>
+$~$|  ├── __init__.py<br>
+$~$|  ├──     ValidationException.py<br>
+├── inputFuncs/<br>
+$~$|  ├── __init__.py<br>
+$~$|  ├── functions.py<br>
+├── tests/<br>
+$~$|  ├── __init__.py<br>
+$~$|  ├── BoundaryTests.py<br>
+$~$|  ├── FunctionalTests.py<br>
+$~$|  ├── IntegrationTests.py<br>
+$~$|  ├── TimeExecutionTests.py<br>
+$~$|  ├── UnitTests.py<br>
+├── README.md<br>
 
 
 Example execution:
