@@ -262,7 +262,7 @@ def getInputDataForUpdateSubject(school):
                                                  " of the subject: ")
                     newSubjectEndGrade = int(input("New end grade"
                                                    " of the subject: "))
-                    school.updateTeacher(subject.nane, subject.startGrade,
+                    school.updateTeacher(subject.name, subject.startGrade,
                                          subject.endGrade, newSubjectName,
                                          newSubjectStartGrade,
                                          newSubjectEndGrade)
